@@ -1,0 +1,5 @@
+lst1 = [-1000, 500, 600, 700, 5000, -90000, -17500]
+
+# Use filter to keep only values that were negative, and map to convert them to positive
+result = list(filter(lambda x: x > 0, map(lambda x: abs(x) if x < 0 else None, lst1)))
+print(result)
