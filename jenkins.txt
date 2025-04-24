@@ -1,0 +1,27 @@
+PROJECT_ID="leapsupply-non-prod"
+CLUSTER_NAME="gke-leapsupply-np-asso2-apps-01"
+ZONE="asia-south2"
+REGISTRY_NAME="leapsupply-npr"
+NAMESPACE="leapsupply-ns"
+IMAGE="leapsupply"
+
+# Set your Google Cloud project ID
+gcloud config set project $PROJECT_ID
+
+# Fetch cluster credentials to authenticate kubectl to the cluster
+gcloud container clusters get-credentials $CLUSTER_NAME --zone $ZONE --project $PROJECT_ID
+
+# Authenticate Docker with Google Artifact Registry
+gcloud auth configure-docker $ZONE-docker.pkg.dev
+
+# Build the Docker image
+docker build -t $ZONE-docker.pkg.dev/$PROJECT_ID/$REGISTRY_NAME/$IMAGE:latest .
+
+# Push the Docker image to the Google Artifact Registry
+docker push $ZONE-docker.pkg.dev/$PROJECT_ID/$REGISTRY_NAME/$IMAGE:latest
+
+# Deploy Kubernetes resources Deployment
+kubectl apply -f kubernetes/deployment.yaml -n ${NAMESPACE}
+
+# Deploy Kubernetes resources Services
+kubectl apply -f kubernetes/service.yaml -n ${NAMESPACE}
